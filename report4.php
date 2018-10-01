@@ -41,6 +41,9 @@
 			$leadName=$leadData[0][1];
 
 			//phone ext
+			if ($retentionId=='cristian.krugher') {
+				$retentionId='cc354';
+			}
 			$phoneExt=explode('cc',$retentionId);
 			$phoneExt=$phoneExt[1];
 

@@ -87,9 +87,28 @@
 							if(ee==0){
 								var vt_url="http://192.168.1.20/vtigercrm/index.php?module=Leads&parent=&page=1&view=List&viewname=53&orderby=&sortorder=&search_params=[[[%22phone%22,%22c%22,%22"+parsedJson[l][tableHeaders[m]][aa][ee]+"%22]]]";
 								rows +="<td class='eee"+ee+"'><a target='_blank' href='"+vt_url+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</a></td>";
-							}else{
-								rows +="<td class='eee"+ee+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</td>";
-							}
+              }else if(ee==2){
+                        var d5 = new Date();
+                        var d10 = new Date();
+                        d5.setDate(d5.getDate() - 5);
+                        d10.setDate(d10.getDate() - 10);
+
+                        var datetime=parsedJson[l][tableHeaders[m]][aa][ee];
+
+                        if((new Date(datetime).getTime() < new Date(d5).getTime()) && (new Date(datetime).getTime() > new Date(d10).getTime())){
+                            rows +="<td style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
+                        } else if((new Date(datetime).getTime() < new Date(d10).getTime()) ){
+                          rows +="<td style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                        }else{
+                          if (datetime=='No Data!') {
+                            rows +="<td style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                          }else{
+                            rows +="<td class='eee"+ee+"'>"+datetime+"</td>";
+                          }
+                        }
+                    }else{
+			                rows +="<td class='eee"+ee+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</td>";
+			              }
 						}
 						rows+="</tr></table>";
 					}
