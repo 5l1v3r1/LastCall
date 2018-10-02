@@ -3,6 +3,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tinysort/3.2.2/tinysort.js"></script>
 	</head>
 <script>
 	$(document).ready(function() {
@@ -19,8 +20,6 @@
   		$('#dp > input').val(dp);
   		console.log(dp);
   		init(dp);
-
-
 	});
 
   	function init(date) {
@@ -70,7 +69,7 @@
 		}
 		var headersHtml = "";
 		for( var k = 0; k < tableHeaders.length ; k++){
-			headersHtml += "<li onclick=\"$(\'.item\').removeClass('hover'); $(this).addClass('hover');$(\'.table_title\').html(\'"+tableHeaders[k]+"\');$(\'.eachr\').css('display','none');$(\'#"+tableHeaders[k].replace(' ','__')+"\').css('display','contents');$(\'.description\').css('display','block'); \" class='item'>"+tableHeaders[k]+"</li>";
+			headersHtml += "<li onclick=\"$(\'.item\').removeClass('hover'); $(this).addClass('hover');$(\'.table_title\').html(\'"+tableHeaders[k]+"\');$(\'.eachr\').css('display','none');tinysort(\'#"+tableHeaders[k].replace(' ','__')+" table\',{selector:\' tbody > tr > td.eee2\'\,attr:'data-attr'});document.querySelector('#main-table').scrollTo(0,0);$(\'#"+tableHeaders[k].replace(' ','__')+"\').css('display','contents');$(\'.description\').css('display','block'); \" class='item'>"+tableHeaders[k]+"</li>";
 		}
 		var rows="";
 		for(var l = 0 ;l < parsedJson.length ; l++){
@@ -94,16 +93,21 @@
                         d10.setDate(d10.getDate() - 10);
 
                         var datetime=parsedJson[l][tableHeaders[m]][aa][ee];
+                        var data_attr=parsedJson[l][tableHeaders[m]][aa][ee];
+                        if (datetime==null) {
+                        	datetime="No Data!";
+                        	data_attr="2000-01-01 00:00:00";
+                        }
 
                         if((new Date(datetime).getTime() < new Date(d5).getTime()) && (new Date(datetime).getTime() > new Date(d10).getTime())){
-                            rows +="<td style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
+                            rows +="<td data-attr='"+data_attr+"' style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
                         } else if((new Date(datetime).getTime() < new Date(d10).getTime()) ){
-                          rows +="<td style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                          rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
                         }else{
                           if (datetime=='No Data!') {
-                            rows +="<td style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                            rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
                           }else{
-                            rows +="<td class='eee"+ee+"'>"+datetime+"</td>";
+                            rows +="<td data-attr='"+data_attr+"' class='eee"+ee+"'>"+datetime+"</td>";
                           }
                         }
                     }else{
@@ -155,6 +159,7 @@
 		</div>
 	</center>
 </footer>
+
 <style>
 @import url("https://fonts.googleapis.com/css?family=Roboto");
 * {

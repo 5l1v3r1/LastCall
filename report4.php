@@ -54,13 +54,13 @@
 			$lastCallDate=$cdr[0][0];
 
 			//if calldate is 4 day old
-			if (!is_null($lastCallDate)) {
-				if (time() - strtotime($lastCallDate) >= 4 * 86400) {
+			//if (!is_null($lastCallDate)) {
+				//if (time() - strtotime($lastCallDate) >= 4 * 86400) {
 					array_push($data[$retentionName],array($phoneId,$leadName,$lastCallDate));
-				}	
-			} else{
-				array_push($data[$retentionName],array($phoneId,$leadName,'No Data!'));
-			}
+				//}	
+			//} else{
+			//	array_push($data[$retentionName],array($phoneId,$leadName,'No Data!'));
+			//}
 		}
 	}
 	fwrite($outputJson,"[".json_encode($data)."]");
