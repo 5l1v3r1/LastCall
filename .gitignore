@@ -1,2 +1,2 @@
-
-*.json
+!reports/README.md
+reports/*
