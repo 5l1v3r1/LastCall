@@ -35,10 +35,24 @@
 		//get phone for each lead
 		foreach ($leads as $lead) {
 			$lead=$lead[0];
-			$getLeadData=mysqli_query($linkVtiger,"SELECT vtiger_leadaddress.phone,CONCAT_WS(' ',vtiger_leaddetails.firstname,vtiger_leaddetails.lastname) FROM vtiger_leadaddress INNER JOIN vtiger_leaddetails ON vtiger_leaddetails.leadid=vtiger_leadaddress.leadaddressid  WHERE leadaddressid='".$lead."' ");
+			$getLeadData=mysqli_query($linkVtiger,"SELECT vtiger_leadaddress.phone,CONCAT_WS(' ',vtiger_leaddetails.firstname,vtiger_leaddetails.lastname),vtiger_leaddetails.leadid,vtiger_leadaddress.mobile,vtiger_leadscf.cf_756,vtiger_leadscf.cf_758 FROM vtiger_leadaddress INNER JOIN vtiger_leaddetails ON vtiger_leaddetails.leadid=vtiger_leadaddress.leadaddressid INNER JOIN vtiger_leadscf ON vtiger_leadscf.leadid=vtiger_leadaddress.leadaddressid  WHERE leadaddressid='".$lead."' ");
 			$leadData=mysqli_fetch_all($getLeadData);
-			$phoneId=$leadData[0][0];
-			$leadName=$leadData[0][1];
+			$phoneId 	=$leadData[0][0];
+			$leadName 	=$leadData[0][1];
+			$leadid 	=$leadData[0][2];
+			$mobilePhone=$leadData[0][3];
+			$cf_756		=$leadData[0][4];
+			$cf_758		=$leadData[0][5];
+
+			if ($mobilePhone=='') {
+				$mobilePhone='xxxxxxx';
+			}
+			if ($cf_756=='') {
+				$cf_756='xxxxxxx';
+			}
+			if ($cf_758=='') {
+				$cf_758='xxxxxxx';
+			}
 
 			//phone ext
 			if ($retentionId=='cristian.krugher') {
@@ -48,7 +62,7 @@
 			$phoneExt=$phoneExt[1];
 
 			//get last calldate
-			$sqlCdr="SELECT calldate FROM cdr WHERE dst like '%".$phoneId."' and src='".$phoneExt."' order by calldate desc limit 1 ";
+			$sqlCdr="SELECT calldate FROM cdr WHERE (dst like '%".$phoneId."' or dst like '%".$mobilePhone."' or dst like '%".$cf_756."' or dst like '%".$cf_758."') and src='".$phoneExt."' order by calldate desc limit 1 ";
 			$cdrData=mysqli_query($linkCdr,$sqlCdr);
 			$cdr=mysqli_fetch_all($cdrData);
 			$lastCallDate=$cdr[0][0];
@@ -56,7 +70,7 @@
 			//if calldate is 4 day old
 			//if (!is_null($lastCallDate)) {
 				//if (time() - strtotime($lastCallDate) >= 4 * 86400) {
-					array_push($data[$retentionName],array($phoneId,$leadName,$lastCallDate));
+					array_push($data[$retentionName],array($phoneId,$leadName,$lastCallDate,$leadid));
 				//}	
 			//} else{
 			//	array_push($data[$retentionName],array($phoneId,$leadName,'No Data!'));
