@@ -83,36 +83,39 @@
 						//console.log(parsedJson[l][tableHeaders[m]][aa]);
 						rows +="<table class='table  table-hover'><tr>";
 						for (ee in parsedJson[l][tableHeaders[m]][aa]) { //each data
-							if(ee==0){
-								var vt_url="http://192.168.1.20/vtigercrm/index.php?module=Leads&parent=&page=1&view=List&viewname=53&orderby=&sortorder=&search_params=[[[%22phone%22,%22c%22,%22"+parsedJson[l][tableHeaders[m]][aa][ee]+"%22]]]";
+							if (ee==3) {
+								continue;
+							}
+							else if(ee==0){
+								var vt_url="http://192.168.1.20/vtigercrm/index.php?module=Leads&view=Detail&record="+parsedJson[l][tableHeaders[m]][aa][3];
 								rows +="<td class='eee"+ee+"'><a target='_blank' href='"+vt_url+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</a></td>";
-              }else if(ee==2){
-                        var d5 = new Date();
-                        var d10 = new Date();
-                        d5.setDate(d5.getDate() - 5);
-                        d10.setDate(d10.getDate() - 10);
+			              	}else if(ee==2){
+			                        var d5 = new Date();
+			                        var d10 = new Date();
+			                        d5.setDate(d5.getDate() - 5);
+			                        d10.setDate(d10.getDate() - 10);
 
-                        var datetime=parsedJson[l][tableHeaders[m]][aa][ee];
-                        var data_attr=parsedJson[l][tableHeaders[m]][aa][ee];
-                        if (datetime==null) {
-                        	datetime="No Data!";
-                        	data_attr="2000-01-01 00:00:00";
-                        }
+			                        var datetime=parsedJson[l][tableHeaders[m]][aa][ee];
+			                        var data_attr=parsedJson[l][tableHeaders[m]][aa][ee];
+			                        if (datetime==null) {
+			                        	datetime="No Data!";
+			                        	data_attr="2000-01-01 00:00:00";
+			                        }
 
-                        if((new Date(datetime).getTime() < new Date(d5).getTime()) && (new Date(datetime).getTime() > new Date(d10).getTime())){
-                            rows +="<td data-attr='"+data_attr+"' style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
-                        } else if((new Date(datetime).getTime() < new Date(d10).getTime()) ){
-                          rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
-                        }else{
-                          if (datetime=='No Data!') {
-                            rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
-                          }else{
-                            rows +="<td data-attr='"+data_attr+"' class='eee"+ee+"'>"+datetime+"</td>";
-                          }
-                        }
-                    }else{
-			                rows +="<td class='eee"+ee+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</td>";
-			              }
+			                        if((new Date(datetime).getTime() < new Date(d5).getTime()) && (new Date(datetime).getTime() > new Date(d10).getTime())){
+			                            rows +="<td data-attr='"+data_attr+"' style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
+			                        } else if((new Date(datetime).getTime() < new Date(d10).getTime()) ){
+			                          rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+			                        }else{
+			                          if (datetime=='No Data!') {
+			                            rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+			                          }else{
+			                            rows +="<td data-attr='"+data_attr+"' class='eee"+ee+"'>"+datetime+"</td>";
+			                          }
+			                        }
+		                    }else{
+					            rows +="<td class='eee"+ee+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</td>";
+					        }
 						}
 						rows+="</tr></table>";
 					}
