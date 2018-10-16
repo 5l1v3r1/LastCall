@@ -38,7 +38,7 @@
 			$getLeadData=mysqli_query($linkVtiger,"SELECT vtiger_leadaddress.phone,CONCAT_WS(' ',vtiger_leaddetails.firstname,vtiger_leaddetails.lastname),vtiger_leaddetails.leadid,vtiger_leadaddress.mobile,vtiger_leadscf.cf_756,vtiger_leadscf.cf_758 FROM vtiger_leadaddress INNER JOIN vtiger_leaddetails ON vtiger_leaddetails.leadid=vtiger_leadaddress.leadaddressid INNER JOIN vtiger_leadscf ON vtiger_leadscf.leadid=vtiger_leadaddress.leadaddressid  WHERE leadaddressid='".$lead."' ");
 			$leadData=mysqli_fetch_all($getLeadData);
 			$phoneId 	=$leadData[0][0];
-			$leadName 	=$leadData[0][1];
+			$leadName 	=utf8_encode($leadData[0][1]);
 			$leadid 	=$leadData[0][2];
 			$mobilePhone=$leadData[0][3];
 			$cf_756		=$leadData[0][4];
@@ -67,14 +67,7 @@
 			$cdr=mysqli_fetch_all($cdrData);
 			$lastCallDate=$cdr[0][0];
 
-			//if calldate is 4 day old
-			//if (!is_null($lastCallDate)) {
-				//if (time() - strtotime($lastCallDate) >= 4 * 86400) {
-					array_push($data[$retentionName],array($phoneId,$leadName,$lastCallDate,$leadid));
-				//}	
-			//} else{
-			//	array_push($data[$retentionName],array($phoneId,$leadName,'No Data!'));
-			//}
+			array_push($data[$retentionName],array($phoneId,$leadName,$lastCallDate,$leadid));
 		}
 	}
 	fwrite($outputJson,"[".json_encode($data)."]");
