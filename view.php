@@ -1,0 +1,305 @@
+<?php 
+include("dbconfig.php");
+session_start();
+if(!isset($_SESSION['login_user']))
+	{
+	header("Location: login.php");
+	}
+
+$userQ=mysqli_query($linkV,"SELECT full_name from vicidial_users where user='".$_SESSION['login_user']."'");
+$user=mysqli_fetch_array($userQ,MYSQLI_ASSOC);
+
+echo '<script>user="'.$user['full_name'].'"</script>';
+?>
+
+
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tinysort/3.2.2/tinysort.js"></script>
+  </head>
+<script>
+  $(document).ready(function() {
+    $('.cont').css('height', $(window).height());
+
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+    if(dd<10) dd = '0'+dd
+    if(mm<10) mm = '0'+mm
+    //var date=dd+mm+yyyy;
+      var dp = yyyy+"-"+mm+"-"+dd ;
+      $('#dp > input').val(dp);
+      console.log(dp);
+      init(dp);
+
+
+  });
+
+    function init(date) {
+      function convertDate(dateString){
+    var p = dateString.split(/\D/g)
+    return [p[2],p[1],p[0] ].join("")
+    }
+     
+    date=convertDate(date);
+
+    $.ajax({
+        url: 'report4/reports/report'+date+'.json'+'?t='+Math.random(),
+        dataType: 'json',
+      })
+      .done(function(response) {
+        var json = response; 
+        $('.description').html(jsonToHTMLTable(json));
+
+        var ret = $('.items  li');
+        for (i=0;i<ret.length;i++) {
+          var a=ret[i].innerHTML.replace(' ','__').toString();
+          var l=$('#'+a+' > table').length;
+          ret[i].innerHTML+='<span>'+l+'</span>';
+        }
+        $('span').css('display','block');
+        $('#content').css('display','block');
+      })
+      .fail(function() {
+        $('.description').html('');
+        $('span').css('display','none');
+        $('#content').css('display','none');
+        alert("No data for selected date!");
+        
+      })
+      .always(function() {
+        $('.item').removeClass('hover');
+      });
+    }
+
+  function jsonToHTMLTable(parsedJson){
+  var tableHeaders = new Array();
+    for(var i = 0 ;i < parsedJson.length ; i++){
+      for( var j = 0 ; j < Object.keys(parsedJson[i]).length ; j++){
+        if(tableHeaders.indexOf(Object.keys(parsedJson[i])[j]) == -1 )
+          if (Object.keys(parsedJson[i])[j]!=user){
+              continue;
+          };
+          tableHeaders.push(Object.keys(parsedJson[i])[j]);
+      }
+    }
+    var headersHtml = "";
+    for( var k = 0; k < tableHeaders.length ; k++){
+      headersHtml += "<li onclick=\"$(\'.item\').removeClass('hover'); $(this).addClass('hover');$(\'.table_title\').html(\'"+tableHeaders[k]+"\');$(\'.eachr\').css('display','none');tinysort(\'#"+tableHeaders[k].replace(' ','__')+" table\',{selector:\' tbody > tr > td.eee2\'\,attr:'data-attr'});document.querySelector('#main-table').scrollTo(0,0);$(\'#"+tableHeaders[k].replace(' ','__')+"\').css('display','contents');$(\'.description\').css('display','block'); \" class='item'>"+tableHeaders[k]+"</li>";
+    }
+    var rows="";
+    for(var l = 0 ;l < parsedJson.length ; l++){
+      rows += "<tr>";
+      for( var m = 0 ;m < tableHeaders.length ; m++){
+        if(typeof parsedJson[l][tableHeaders[m]] == 'undefined')
+          rows += "<td></td>";
+        else{
+          rows+="<td id='"+tableHeaders[m].replace(' ','__')+"' class='eachr'>";//each retention
+          if (tableHeaders[m]!=user) {
+            continue;
+          }
+          for (aa in parsedJson[l][tableHeaders[m]]) { //each lead
+            //console.log(parsedJson[l][tableHeaders[m]][aa]);
+            rows +="<table class='table  table-hover'><tr>";
+            for (ee in parsedJson[l][tableHeaders[m]][aa]) { //each data
+              if (ee==3) {
+                continue;
+              }
+              if(ee==0){
+                var vt_url="http://192.168.1.20/vtigercrm/index.php?module=Leads&view=Detail&record="+parsedJson[l][tableHeaders[m]][aa][3];
+                rows +="<td class='eee"+ee+"'><a target='_blank' href='"+vt_url+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</a></td>";
+              }else if(ee==2){
+                        var d5 = new Date();
+                        var d10 = new Date();
+                        d5.setDate(d5.getDate() - 5);
+                        d10.setDate(d10.getDate() - 10);
+
+                        var datetime=parsedJson[l][tableHeaders[m]][aa][ee];
+                        var data_attr=parsedJson[l][tableHeaders[m]][aa][ee];
+                        if (datetime==null) {
+                          datetime="No Data!";
+                          data_attr="2000-01-01 00:00:00";
+                        }
+
+                        if((new Date(datetime).getTime() < new Date(d5).getTime()) && (new Date(datetime).getTime() > new Date(d10).getTime())){
+                            rows +="<td data-attr='"+data_attr+"' style='background:orange;' class='eee"+ee+"'>"+datetime+"</td>";
+                        } else if((new Date(datetime).getTime() < new Date(d10).getTime()) ){
+                          rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                        }else{
+                          if (datetime=='No Data!') {
+                            rows +="<td data-attr='"+data_attr+"' style='background:red;' class='eee"+ee+"'>"+datetime+"</td>";
+                          }else{
+                            rows +="<td data-attr='"+data_attr+"' class='eee"+ee+"'>"+datetime+"</td>";
+                          }
+                        }
+                    }else{
+                rows +="<td class='eee"+ee+"'>"+parsedJson[l][tableHeaders[m]][aa][ee]+"</td>";
+              }
+            }
+            rows+="</tr></table>";
+          }
+          rows+="</td>";
+        }
+      }
+      rows += "</tr>";
+    }
+    $('.items').html(headersHtml);
+    var horizontal_table= "<table id='main-table' class=\"table table-bordered \">"+rows+"</table>";
+  return horizontal_table;
+}
+</script>
+<center>
+  <div class="cont clearfix">
+    <div id="menu">
+      <div class="title">
+        Retention
+      </div>
+      <ul class="items">
+      </ul>
+    </div>
+    <div id="content">
+      <div class="title table_title">
+      </div>
+      <div class="description">
+      </div>
+    </div>
+  </div>
+</center>
+<div id="dp">
+  <input class="form-control"  type="date" onchange="init(this.value)" id="dpi" name="date">
+  <a id="logout" class="btn btn-danger" href="logout.php">Logout</a>
+</div>
+<footer>
+  <center>
+    <div>
+        2018 &copy; NEXT    
+      </br>
+         
+        Adalen Vladi&nbsp;&nbsp;&nbsp;
+        Marsel Halilaj
+      </br>
+      
+    </div>
+
+  </center>
+
+</footer>
+<style>
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Roboto';
+  font-weight: 300;
+}
+.clearfix::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.cont {
+  background: linear-gradient(#BBB, #999, #CCC, #777);
+  min-height: 320px;
+}
+.title {
+  font-size: 150%;
+  padding: 0 .5em;
+  display: inline-block;
+  background: rgba(40, 40, 40, 0.33333);
+  color: #DDD;
+  text-transform: uppercase;
+}
+#menu {
+  float: left;
+  width: 25%;
+  text-transform: uppercase;
+  padding: 2em;
+  cursor: default;
+}
+#menu .items {
+  list-style: none;
+  padding: 0;
+  margin: 0.5em 0;
+}
+#menu .items .item {
+  padding: 0.125em 0.5em;
+  margin: 0.125em 0;
+  background-color: rgba(224, 224, 224, 0.33333);
+  color: #444;
+  position: relative;
+  transition: all 0.4s;
+  width: inherit;
+  text-align: left;
+}
+#menu .items .item:hover {
+  border-left: 0.25em solid #007bff80;
+  background-color: rgba(255, 255, 255, 0.66666);
+  color: #000;
+  width: 125%;
+  font-size: 125%;
+  right: 7.5%;
+  margin: 0;
+}
+.hover{
+  border-left: 0.25em solid #007bff80;
+  background-color: rgba(255, 255, 255, 0.66666);
+  color: #000;
+  width: 125%;
+  font-size: 125%;
+  right: 7.5%;
+  margin: 0;
+}
+#content {
+  float: left;
+  width: 75%;
+  padding: 2em;
+}
+#content .description {
+  background-color: rgba(255, 255, 255, 0.66666);
+  margin: 0.5em 0;
+  padding: 0.5em;
+}
+table{white-space:nowrap}
+.eachr{display:none}
+.eee0{width:10%;}
+.eee1{width:70%}
+.eee2{width:20%}
+.description{
+  display:none;
+  width: fit-content;
+}
+#main-table{
+    overflow-y:scroll;
+    bottom:0;
+    display:block;
+    position:relative; 
+    height:80%;
+    overflow-x:hidden;
+}
+footer{
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #bababa;
+  color: black;
+  position: fixed;
+}
+span{
+  float: right;
+}
+#dp{
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+#logout{
+  float: right;
+  background:#ff656c;
+}
+</style>
+</html>
