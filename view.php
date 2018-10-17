@@ -41,8 +41,8 @@ echo '<script>user="'.$user['full_name'].'"</script>';
 
     function init(date) {
       function convertDate(dateString){
-    var p = dateString.split(/\D/g)
-    return [p[2],p[1],p[0] ].join("")
+      var p = dateString.split(/\D/g)
+      return [p[2],p[1],p[0] ].join("")
     }
      
     date=convertDate(date);
@@ -73,7 +73,9 @@ echo '<script>user="'.$user['full_name'].'"</script>';
       })
       .always(function() {
         $('.item').removeClass('hover');
+        $('.items > li').click();
       });
+
     }
 
   function jsonToHTMLTable(parsedJson){
@@ -170,7 +172,7 @@ echo '<script>user="'.$user['full_name'].'"</script>';
   </div>
 </center>
 <div id="dp">
-  <input class="form-control"  type="date" onchange="init(this.value)" id="dpi" name="date">
+  <input class="form-control"  type="date" onchange="init(this.value);" id="dpi" name="date">
   <a id="logout" class="btn btn-danger" href="logout.php">Logout</a>
 </div>
 <footer>
